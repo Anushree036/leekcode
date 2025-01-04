@@ -1,0 +1,904 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
+    int* result = (int*)malloc(2 * sizeof(int));
+    for (int i = 0; i < numsSize; i++) {
+        for (int j = i + 1; j < numsSize; j++) {
+            if (nums[i] + nums[j] == target) {
+                result[0] = i;
+                result[1] = j;
+                *returnSize = 2;
+                return result;
+            }
+        }
+    }
+    *returnSize = 0;
+    return NULL;
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* addTwoNumbers(struct ListNode* l1, struct ListNode* l2) {
+    struct ListNode* listHead = (struct ListNode*)malloc(sizeof(struct ListNode));
+    struct ListNode* listTail = listHead;
+    listTail->val = 0;
+
+    
+    while (true) {
+        int val = (l1 ? l1->val: 0) + (l2 ? l2->val: 0) + listTail->val;
+
+        listTail->val = val % 10;
+        
+        l1 = l1 ? l1->next : NULL;
+        l2 = l2 ? l2->next : NULL;
+        
+        if (l1 || l2 || val/10) {
+            listTail->next = (struct ListNode*)malloc(sizeof(struct ListNode));
+            listTail->next->val = val/10;
+            listTail = listTail->next;
+            
+        }
+        else {
+            listTail->next = NULL;
+            return listHead;
+        }
+    }
+}
+int lengthOfLongestSubstring(char* s) {
+    if (!s || !*s) // Check if the string is empty
+        return 0;
+    
+    int charIndexMap[256]; // Assuming ASCII characters
+    memset(charIndexMap, -1, sizeof(charIndexMap)); // Initialize array with -1
+    
+    int maxLength = 0;
+    int startIndex = 0;
+    int i;
+    
+    for (i = 0; s[i] != '\0'; i++) {
+        // If the character is already in the map and its index is after the start index of the current substring,
+        // update the start index to the index after the last occurrence of the character
+        if (charIndexMap[s[i]] != -1 && charIndexMap[s[i]] >= startIndex) {
+            startIndex = charIndexMap[s[i]] + 1;
+        }
+        
+        // Update the index of the current character
+        charIndexMap[s[i]] = i;
+        
+        // Update the maximum length if the current substring is longer
+        if (i - startIndex + 1 > maxLength) {
+            maxLength = i - startIndex + 1;
+        }
+    }
+    
+    return maxLength;
+}
+char * convert(char * s, int numRows){
+    int size = strlen(s) + 5;
+    if (numRows == 1 || size-5 <= numRows ) return s;
+    
+    char **zigzag = (char**)calloc(numRows * size, sizeof(char));
+    for(int i = 0; i < numRows; i++) *(zigzag + i) = (char*) calloc(size, sizeof(char));
+    
+    int direction = -1, level = 0, i = 0; 
+    while( s[i] != '\0' ){
+        strncat(zigzag[level], &s[i++], 1);
+        if ( level % (numRows-1) == 0 ) direction *= -1;
+        level += direction;
+    }
+    strcpy(s, "");
+    for(int i = 0; i < numRows; i++)strcat(s, zigzag[i]);
+    
+    for(int i = 0; i < numRows; i++){
+        free(*(zigzag + i));
+    }
+    free(zigzag);
+    return s;
+}
+int reverse(int x){
+    long sum=0;
+    while(x!=0){
+        int rem=x%10;
+        sum=sum*10 + rem;
+        x=x/10;
+    }
+    if(sum>INT_MAX || sum<INT_MIN){
+        return 0;
+    }
+    return (int)sum;
+}
+bool isPalindrome(int x) {
+
+     double rev=0, rem, orignal=x;
+    
+    
+        while(x>0)
+        {
+            rem = x % 10;
+            rev = rev * 10 + rem;
+            x/=10;
+        }
+
+        if(rev == orignal)
+            return true;
+        
+         else
+       return false;
+    
+}
+int maxArea(int* height, int heightSize) {
+    int max_area = INT_MIN, i = 0, j = heightSize - 1;
+    while(i < j) {
+        if(height[i] > height[j]) {
+            if(max_area < height[j] * (j - i))
+                max_area = height[j] * (j - i);
+            j--;
+        }
+        else {
+            if(max_area < height[i] * (j - i))
+                max_area = height[i] * (j - i);
+            i++;
+        }
+    }
+    return max_area;
+}
+int getValue(char roman){
+    switch(roman){
+        case 'I': return 1;
+        case 'V': return 5;
+        case 'X': return 10;
+        case 'L': return 50;
+        case 'C': return 100;
+        case 'D': return 500;
+        case 'M': return 1000;
+        default : return 0; 
+    }
+}
+int romanToInt(char* s) {
+    int total =0;
+    int prevValue = 0;
+    for(int i = strlen(s)-1; i>=0; i--){
+        int currentvalue = getValue(s[i]);
+
+        if(currentvalue < prevValue){
+            total -= currentvalue;
+        }
+        else{
+            total += currentvalue;
+        }
+        prevValue = currentvalue;
+    }
+    return total;
+}
+char * longestCommonPrefix(char ** str, int size){
+
+    int i,j,flag=0,k=0,min=100000;
+    char *s = (char *)malloc(127*sizeof(char));
+    strcpy(s,"");
+    if(size==0)
+        return s;
+    char c;
+    for(i=0;i<size;i++)
+    {
+        if(min>strlen(str[i]))
+            min = strlen(str[i]);
+    }
+    for(i=0;i<min;i++,k++)
+    {
+        c = str[0][i];
+        for(j=0;j<size;j++)
+        {
+            if(str[j][i]!=c)
+            {
+                flag = 1;
+                break;
+            }
+        }
+    //    printf("%d ",flag);
+    //    printf("%d ",strlen(str[i]));
+        if(flag)
+            break;
+        else
+        {
+            s[k] = c;
+            s[k+1] = '\0';
+        }
+    }
+ //   printf("%s",s);
+    return s;
+}
+bool isValid(char* s) {
+    int len =strlen(s);
+    char stack[len];
+    int top = -1;
+    for(int i=0;i<len;i++){
+        if(s[i]=='(' || s[i] == '{' || s[i] == '[' ){
+            stack[++top] = s[i];
+        }else{
+            if(top == -1 ||( s[i]==')'&&stack[top] != '(')||(s[i]=='}'&&stack[top] != '{')||(s[i]==']'&&stack[top]!='[')){
+                return false;
+            } 
+            top--;
+        } 
+    }  
+    return top == -1; 
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+void insert (struct ListNode** head,int num){
+    struct ListNode* new = (struct ListNode*)malloc(sizeof(struct ListNode));
+    new->val = num;
+    new->next = NULL;
+
+    if(*head == NULL){
+        *head = new;
+    }else{
+        struct ListNode* temp = *head;
+        while(temp->next != NULL){
+            temp =temp->next;
+        }
+        temp->next = new;
+    }
+}
+
+struct ListNode* mergeTwoLists(struct ListNode* list1, struct ListNode* list2) {
+    struct ListNode* head = NULL;
+    while(list1 != NULL && list2 != NULL){
+        if(list1->val < list2->val){
+            insert(&head,list1->val);
+            list1 = list1->next;
+        }else{
+            insert(&head,list2->val);
+            list2 = list2->next;
+        }
+    }
+    while(list1 != NULL){
+        insert(&head,list1->val);
+        list1 = list1->next;
+    }
+    while(list2 != NULL){
+        insert(&head,list2->val);
+        list2 = list2->next;
+    }
+
+    return head;
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* swapPairs(struct ListNode* head){
+    if(head==NULL || head->next==NULL)
+    return head;
+    struct ListNode*x,*y,*z=NULL;
+    x=head;
+    y=head->next;
+    if(head->next->next!=NULL)
+    {
+        z=head->next->next;
+    }
+    head=y;
+    while(z!=NULL && z->next!=NULL)
+    {
+        y->next=x;
+        x->next=z->next;
+        x=z;
+        y=x->next;
+        z=y->next;
+    }
+    y->next=x;
+    x->next=z;
+    return head;
+}
+int removeDuplicates(int* nums, int numsSize) {
+  int c=1;
+  for(int i=0;i<numsSize;i++){
+    if( nums[i]!=nums[c-1]){
+        nums[c]=nums[i];
+        c++;
+    }
+  }
+  return c;
+}
+int removeElement(int *nums, int numsSize, int val) {
+    int count = 0;
+
+    for (int i = 0; i < numsSize; i++)
+        if (nums[i] == val) 
+            count++;
+        else 
+            nums[i - count] = nums[i];
+    return (numsSize - count);
+}
+int strStr(char* haystack, char* needle) {
+    int haystack_size = strlen(haystack);
+    int needle_size = strlen(needle);
+    int result = -1;
+    int i = 0;  // haystack
+    int j = 0;  // needle
+
+    while (i < (haystack_size) && j < needle_size) {
+        if (haystack[i] == needle[j]) {
+            i++;
+            j++;
+        }
+        else {
+            i = i - j + 1;
+            j = 0;
+        }
+    }
+
+    return result = (j == needle_size) ? (i - needle_size) : -1;
+}
+	int divide(int dividend, int divisor) {
+    return (dividend == -2147483648 && divisor == -1)? INT_MAX:dividend/divisor;
+}
+int searchInsert(int* nums, int numsSize, int target) {
+    int low = 0;
+    int high = numsSize - 1;
+
+    while (low <= high) {
+        int mid = low + (high - low) / 2;
+
+        if (nums[mid] == target) {
+            return mid; 
+        }
+        if (nums[mid] < target) {
+            low = mid + 1;  
+        } else {
+            high = mid - 1; 
+        }
+    }
+    
+    return low;
+}
+bool isValidSudoku(char** board, int boardSize, int* boardColSize) {
+    bool check[9] = {false};
+    int i, j;
+
+    // ROW CHECKS !!
+    for (i = 0; i < 9; i++) {
+        for (j = 0; j < 9; j++) {
+            if (board[i][j] >= '0' && board[i][j] <= '9') {
+                if (check[board[i][j] - '1'] == true)
+                    return false;
+                else
+                    check[board[i][j] - '1'] = true;
+            }
+        }
+        memset(check, 0, sizeof(check));
+    }
+
+    // COLUMNS CHECKS !!
+    for (i = 0; i < 9; i++) {
+        for (j = 0; j < 9; j++) {
+            if (board[j][i] >= '0' && board[j][i] <= '9') {
+                if (check[board[j][i] - '1'] == true)
+                    return false;
+                else
+                    check[board[j][i] - '1'] = true;
+            }
+        }
+        memset(check, 0, sizeof(check));
+    }
+
+    // 3x3 BOXES CHECKS !!
+    int boxRow = 0 , boxCol = 0;
+    for(boxRow = 0; boxRow < 9; boxRow +=3 ){
+        for(boxCol = 0; boxCol < 9; boxCol +=3){
+            for(i = 0; i < 3; i++){
+                for(j = 0; j < 3; j++){
+                    if(board[boxRow+i][boxCol+j] >= '0' && board[boxRow+i][boxCol+j] <= '9'){
+                        if(check[board[boxRow+i][boxCol+j] - '1'] == true)
+                            return false;
+                        else
+                            check[board[boxRow+i][boxCol+j] - '1'] = true;
+                    }
+                }
+            }
+            memset(check, 0, sizeof(check));
+        }
+    }
+
+    return true;    
+}
+int lengthOfLastWord(char* s) {
+    int length=0,i,wordcounter=0;
+    for(i=0;s[i]!='\0';i++)
+    {
+        length++;
+    }
+    for(i=(length-1);s[i]==' ';i--)
+    {
+        if(s[i]==' ')
+        s[i]='\0';
+    }
+    for(i=0;s[i]!='\0';i++)
+    {
+        if(s[i]==' ')
+        {
+            wordcounter=0;
+            continue;
+        }
+        else
+        {
+            wordcounter++;
+        }
+    }
+    return wordcounter;
+}
+/** Note: The returned array must be malloced, assume     */
+/** caller calls free().                                  */
+int *plusOne(int *digits, int digitsSize, int *returnSize) {
+    *returnSize = digitsSize;
+    int *plusOne = malloc(digitsSize * sizeof(int));
+    if (plusOne == NULL)
+        return (NULL);
+    for (int i = 0; i < digitsSize; i++)
+        plusOne[i] = digits[i];
+    
+    plusOne[digitsSize - 1]++;
+    for (int i = digitsSize - 1; i - 1 >= 0; i--)
+        if (plusOne[i] == 10) {
+            plusOne[i] = 0;
+            plusOne[i - 1]++;
+        }
+
+    if (plusOne[0] == 10) {
+        (*returnSize)++;
+        plusOne = realloc(plusOne, *returnSize * sizeof(int));
+        if (plusOne == NULL)
+            return (NULL);
+        memmove(plusOne + 1, plusOne, digitsSize * sizeof(int));
+        plusOne[0] = 1;
+        plusOne[1] = 0;
+    }
+    return (plusOne);
+}
+char * addBinary(char * a, char * b){
+    int sizeA = strlen(a);
+    int sizeB = strlen(b);
+    int sizeOutput = (sizeA > sizeB ? sizeA : sizeB) + 1;
+    char * output = (char *)malloc(sizeOutput + 1);
+    int sum = 0;
+    
+    output[sizeOutput] = '\0';
+    
+    while(sizeA > 0 || sizeB > 0 || sum > 0) {
+        
+        if(sizeA > 0) {
+            sum += a[--sizeA] - '0';
+        }
+        if(sizeB > 0) {
+            sum += b[--sizeB] - '0';
+        }
+        output[--sizeOutput] = sum % 2 + '0';
+        sum /= 2;
+    }
+    return output + sizeOutput;   
+}
+int mySqrt(int x) {
+    if(x==0||x==1){
+        return x;
+    }
+    for(long long int i=1;i<=x;i++){
+        if(i*i>x){
+            return i-1;
+        }
+
+    }
+return 0;
+}
+int climbStairs(int n) {
+    int i=0,j=1,k,cnt=0;
+    while(cnt!=n)
+    {k=i+j;
+        i=j;
+        j=k;
+        cnt++; }
+    return k;
+
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* deleteDuplicates(struct ListNode* head){
+    struct ListNode* curr = head;
+
+    while(curr != NULL && curr->next != NULL){
+        if(curr->val == curr->next->val)
+            curr->next = curr->next->next;
+        else
+            curr = curr->next;
+    }
+
+    return head;
+}
+void merge(int* nums1, int nums1Size, int m, int* nums2, int nums2Size, int n) {
+    int p1=m-1;
+    int p2=n-1;
+    int p=m+n-1;
+    while(p1>=0 && p2>=0){
+        if(nums1[p1]>nums2[p2])
+            nums1[p--]=nums1[p1--];
+        else
+        nums1[p--]=nums2[p2--];
+    }
+    while(p2>=0)
+     nums1[p--]=nums2[p2--];
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int i=0;
+int arr[101]={0};
+void inorder(struct TreeNode* s)
+{
+    if(s!=NULL)
+    {
+        inorder(s->left);
+        arr[i++]=s->val;
+        inorder(s->right);
+    }
+}
+int* inorderTraversal(struct TreeNode* root, int* returnSize){
+    inorder(root);
+    int* ans=malloc(i*sizeof(int));
+    for(int j=0;j<i;j++) ans[j]=arr[j];
+    *(returnSize)=i;
+    i=0;
+    return ans;
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+bool isSameTree(struct TreeNode* p, struct TreeNode* q) {
+    if(p==NULL && q==NULL)
+    {
+        return true;
+    }
+    if(p==NULL || q==NULL)
+    {
+        return false;
+    }
+    if(p->val!=q->val)
+    {
+        return false;
+    }
+    return isSameTree(p->left,q->left) && isSameTree(p->right,q->right);
+    
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+bool isSymmetricHelp(struct TreeNode* left, struct TreeNode* right) {
+    if (left == NULL || right == NULL) {
+        return left == right;
+    }
+    if (left->val != right->val) {
+        return false;
+    }
+
+    return isSymmetricHelp(left->left, right->right) && isSymmetricHelp(left->right, right->left);
+}
+
+bool isSymmetric(struct TreeNode* root) {
+    return root == NULL || isSymmetricHelp(root->left, root->right);
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+int maxDepth(struct TreeNode* root){
+    if (!root)
+        return 0;
+    int left_depth = maxDepth(root->left);
+    int right_depth = maxDepth(root->right);
+    if(left_depth > right_depth)
+        return left_depth +1;
+    else
+        return right_depth +1;
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+struct TreeNode* createNewNode(int val) {
+    struct TreeNode* newNode = (struct TreeNode*)malloc(sizeof(struct TreeNode));
+    newNode->val = val;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+struct TreeNode* res(int* nums, int l, int r) {
+    if (l > r)
+        return NULL;
+    int mid = l + (r - l) / 2; 
+    struct TreeNode* node = createNewNode(nums[mid]);
+    node->left = res(nums, l, mid - 1);
+    node->right = res(nums, mid + 1, r);
+    return node;
+}
+
+struct TreeNode* sortedArrayToBST(int* nums, int numsSize) {
+    return res(nums, 0, numsSize - 1);
+}
+/* Definition for a binary tree node.                   */
+/* struct TreeNode {                                    */
+/*     int val;                                         */
+/*     struct TreeNode *left;                           */
+/*     struct TreeNode *right;                          */
+/* };                                                   */
+int depth(struct TreeNode *root);
+
+bool isBalanced(struct TreeNode *root) {
+    if (root == NULL)
+        return true;
+        
+    return isBalanced(root->left) && 
+           isBalanced(root->right) &&
+           !(abs(depth(root->left) - depth(root->right)) > 1);
+}
+
+int depth(struct TreeNode *root) {
+    if (root == NULL)
+        return 0;
+        
+    return fmax(depth(root->left), depth(root->right)) + 1;
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+int minDepth(struct TreeNode* root){
+    int x,y;
+    if(root == NULL)
+        return 0;
+    else{
+    x=minDepth(root->left);
+    y=minDepth(root->right);
+    if ((x==0) ^ (y==0)) 
+    return (x>y?x:y)+1 ;
+    if(x > y)
+    return y + 1;
+    else
+    return x + 1;
+    }
+
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+void sumPath(struct TreeNode* root, int res, int*psum ,int *flag,int t){
+    if(root == NULL) return ;
+    if(!root->left && !root->right) {
+    *psum += res+root->val;
+    if(*psum==t){
+        *flag +=1;
+        return;
+    }
+    *psum = 0;
+    }sumPath(root->left, res+root->val,psum,flag,t);
+    sumPath(root->right, res+root->val,psum,flag,t);
+}
+
+bool hasPathSum(struct TreeNode* root, int t) {
+    int sum = 0;
+    int flag = 0;
+    sumPath(root,0,&sum,&flag,t);
+    if(flag !=0) return true;
+    return false;
+}
+int** generate(int numRows, int* returnSize, int** returnColumnSizes){
+    *returnSize = numRows;
+    int **output = calloc(1, sizeof(int *[numRows]));
+    *returnColumnSizes = calloc(1, sizeof(int [numRows]));
+    
+    //Allocate memory for the whole triangle
+    for (int i=0; i<numRows; i++) {
+        (*returnColumnSizes)[i] = i + 1;
+        output[i] = calloc(1, sizeof(int [i + 1]));
+    }
+    
+    //the first row will always be 1
+    output[0][0] = 1;
+    
+    for (int i=1; i<numRows; i++) {
+        output[i][0] = 1;
+        for (int j=1; j<i; j++) {
+            output[i][j] = output[i-1][j-1] + output[i-1][j];
+        }
+        output[i][i] = 1;
+    }
+    return output;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* getRow(int rowIndex, int* returnSize){
+
+
+        //challenge to use O(rowIndex) space
+        //at rowIndex, there are (rowIndex+1) space
+
+        int* ret = (int*)malloc(sizeof(int)*(rowIndex+1));
+        ret[0]=1; // base case on top
+        for (int i=1; i<rowIndex+1;i++){
+            ret[i]=1; //sets last index of current row to 1
+            int o=1;
+            for (int j=1; j<i;j++){ 
+                //sum up "prev row" index j-1 and j and put in j
+                //-> index j original value needs to be saved
+                ret[j] = o + ret[j];
+                o=ret[j]-o;
+            }
+        }
+
+        *returnSize=rowIndex+1;
+        return ret;
+
+
+
+}
+int maxProfit(int* prices, int pricesSize) {
+    if (pricesSize == 0) {
+        return 0; // If no prices, no profit.
+    }
+
+    int minPrice = prices[0]; // Start with the first price as the minimum
+    int maxProfit = 0; // Initially, no profit
+
+    // Iterate through the prices starting from the second day
+    for (int i = 1; i < pricesSize; i++) {
+        if (prices[i] < minPrice) {
+            minPrice = prices[i];
+        }
+        // Calculate the potential profit for the current price
+        int profit = prices[i] - minPrice;
+
+        // Update maxProfit if the current profit is higher
+        if (profit > maxProfit) {
+            maxProfit = profit;
+        }
+
+        // Update the minPrice if the current price is lower than the previous minimum
+        
+    }
+
+    return maxProfit;
+}
+bool isPalindrome(char * s){
+    int len, flag;
+    
+    len = strlen(s);
+    flag = 1;
+    if(len == 1)
+        return 1;
+
+    for(int i = 0, k = len - 1; i <= k; i++, k--){
+        flag = 1;
+        char sym1, sym2;
+        sym1 = sym2 = -1;
+        while(flag && i <= k){
+            if('A' <= s[i]&& s[i]<= 'Z'){
+                sym1 = s[i] + 32;
+                flag = 0;
+            } else if ('a' <= s[i]&& s[i] <= 'z'){
+                sym1 = s[i];
+                flag = 0;
+            }else if ('0' <= s[i] && s[i] <= '9'){
+                sym1 = s[i];
+                flag = 0;
+            }  else {
+                i++;
+            }
+        }
+        flag = 1;
+        while(flag && i <= k){
+            if('A' <= s[k] && s[k] <= 'Z'){
+                sym2 = s[k] + 32;
+                flag = 0;
+            } else if ('a' <= s[k] && s[k]<= 'z'){
+                sym2 = s[k];
+                flag = 0;
+            } else if ('0' <= s[k] && s[k] <= '9'){
+                sym2 = s[k];
+                flag = 0;
+            } 
+            else {
+                k--;
+            }
+        }
+        if(sym1 != sym2)
+            return 0;
+    }
+    return 1;
+}
+int singleNumber(int* a, int n) {
+    int r=0;
+    for(int i=0;i<n;i++){
+        r^=a[i];
+    }
+    return r;
+    
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+bool hasCycle(struct ListNode *head) {
+if(head==NULL)
+    return false;
+
+  if(head-> next == NULL)
+        return false;
+   struct  ListNode* slow = head;
+   struct  ListNode* fast = head;
+     while(slow != NULL && fast != NULL){
+         fast = fast->next;
+         if(fast != NULL)
+             fast = fast->next;
+         slow = slow-> next;
+         if(slow == fast)
+             return true;
+     }
+    return false;
+  
+
+}
