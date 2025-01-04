@@ -902,3 +902,110 @@ if(head==NULL)
   
 
 }
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+
+int* preorderTraversal(struct TreeNode* root, int* returnSize) {
+    if (root == NULL) {
+        *returnSize = 0;
+        return NULL;
+    }
+    struct TreeNode** stack = (struct TreeNode**)malloc(sizeof(struct TreeNode*));
+    int stackSize = 0;
+    int capacity = 1;
+    int* result = (int*)malloc(sizeof(int));
+    int resultSize = 0;
+    while (stackSize > 0 || root != NULL) {
+        while (root != NULL) {
+            result = (int*)realloc(result, (resultSize + 1) * sizeof(int));
+            result[resultSize++] = root->val;
+            if (root->right != NULL) {
+                if (stackSize >= capacity) {
+                    capacity *= 2;
+                    stack = (struct TreeNode**)realloc(stack, capacity * sizeof(struct TreeNode*));
+                }
+                stack[stackSize++] = root->right;
+            }
+            root = root->left;
+        }
+        if (stackSize > 0) {
+            root = stack[--stackSize];
+        }
+    }
+    free(stack);
+    *returnSize = resultSize;
+    return result;
+}
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     struct TreeNode *left;
+ *     struct TreeNode *right;
+ * };
+ */
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+void findnext (struct TreeNode* root, int* returnSize,int* arr) {
+
+    if (root->left) {
+        findnext(root->left, returnSize, arr);
+    }
+
+    if (root->right) {
+        findnext(root->right, returnSize, arr);
+    }
+    arr[(*returnSize)++] = root->val;
+}
+
+int* postorderTraversal(struct TreeNode* root, int* returnSize) {
+    *returnSize = 0;
+    int* arr = malloc(sizeof(int) * 100);
+    if (root == NULL) return NULL;
+
+    findnext(root, returnSize, arr);
+    return arr;    
+}
+int maxSubArray(int* a, int s) {
+    int m=a[0];
+    int n=0;
+    for(int i=0;i<s;i++)
+    {
+        n=n+a[i];
+        if(m<n)
+        {
+            m=n;
+        }
+        if(n<0)
+        {
+            n=0;
+        }
+        
+    }
+    return m;
+}
+int* spiralOrder(int** matrix, int matrixSize, int* matrixColSize, int* returnSize){
+    int * result = (int *)malloc(matrixSize*(*matrixColSize)*sizeof(int));
+    int left = 0, right = *matrixColSize-1, up = 0, down = matrixSize-1, idx = 0;
+    while(left <= right && up <= down)
+    {
+        for(int i=left; i<=right; i++) //left to right
+            result[idx++] = matrix[up][i];
+        for(int i=up+1; i<=down; i++) //up to down
+            result[idx++] = matrix[i][right]; 
+        for(int i=right-1; i>left && up != down; i--) //right to left
+            result[idx++] = matrix[down][i];
+        for(int i=down; i>up && left != right; i--) //down to up
+            result[idx++] = matrix[i][left];
+        up++; down--; left++; right--;
+    }
+    *returnSize = idx;
+    return result;
+}
