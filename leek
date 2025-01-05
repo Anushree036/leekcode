@@ -1009,3 +1009,1423 @@ int* spiralOrder(int** matrix, int matrixSize, int* matrixColSize, int* returnSi
     *returnSize = idx;
     return result;
 }
+char * longestPalindrome(char * s){
+  int max = 1;
+  char* max_start = s;
+  for (const char* pos = s; *pos; ++pos) {
+    /* Check odd length palindromes */
+    int sz = 1;
+    for (; s <= pos - sz && *(pos - sz) == *(pos + sz); ++sz)
+      ;
+    if (sz * 2 - 1 > max) {
+      max_start = pos - sz + 1;
+      max = sz * 2 - 1;
+    }
+  
+    /* Check even length palindromes */
+    for (sz = 0; s <= pos - sz && *(pos - sz) == *(pos + sz + 1); ++sz)
+      ;
+    if (sz * 2 > max) {
+      max_start = pos - sz + 1;
+      max = sz * 2;
+    }
+  }
+  char* const ret = (char*) malloc(max + 1);
+  memcpy(ret, max_start, max);
+  ret[max] = '\0';
+  return ret;
+}
+char* countAndSay(int n)
+{
+    if(n == 1)
+    {
+        return "1";
+    }
+    // get s
+    char* s = countAndSay(n - 1);  // answer from previous call
+    int size = strlen(s);  // size of s
+    // get ans
+    char* ans = (char*) malloc(4463 * sizeof(char));
+    // iterate through s and add to ans
+    int idx = 0;  // idx in ans
+    char curr = *s;  // first char of s
+    int cnt = 1;  // count of curr
+    for(int i = 1; i < size; i++)
+    {
+        char c = *(s + i);
+        if(c == curr)
+        {
+            cnt++;
+        }
+        else
+        {
+            *(ans + idx++) = ('0' + cnt);
+            *(ans + idx++) = curr;
+            curr = c;
+            cnt = 1;
+        }
+        // printf("%s\n", ans);
+    }
+    *(ans + idx++) = ('0' + cnt);
+    *(ans + idx++) = curr;
+    *(ans + idx) = '\0';
+    // ans = (char*) realloc(ans, (idx + 1) * sizeof(char));
+    return ans;
+}
+double findMedianSortedArrays(int* nums1, int nums1Size, int* nums2, int nums2Size) {
+    double s;
+    int b;
+    int t[nums1Size+nums2Size];
+int i=0; int j=0; int k=0;
+// Merging two sorted arrays
+    while((i<nums1Size)&&(j<nums2Size))
+    {   if(nums1[i]<nums2[j])
+     {  t[k]=nums1[i];
+        i++;
+        k++;
+     }
+      else
+     {  t[k]=nums2[j];
+        j++;
+        k++;
+    }
+    }
+// If there are remaining elements in nums1
+    if(i== nums1Size)
+    {
+        while(j<nums2Size)
+        {   t[k]=nums2[j];
+            j++;
+            k++;
+        }
+    }
+// If there are remaining elements in nums2
+    if(j== nums2Size)
+    {
+        while(i<nums1Size)
+        {   t[k]=nums1[i];
+            i++;
+            k++;
+        }
+    }
+// Calculate the median
+    if((nums1Size+nums2Size)%2!=0)
+    {   // Odd length, return the middle element
+        b=t[(nums1Size+nums2Size)/2];
+        s=(double)b;
+        return(s);
+    }
+    else 
+    {   // Even length, return the average of the two middle elements
+        s=((double)((t[(nums1Size+nums2Size)/2])+(t[((nums1Size+nums2Size)/2)-1])))/2;
+        return(s);
+    }
+}
+#include <limits.h>
+
+inline bool is_num(char s) {
+    return s >= '0' && s <= '9';
+}
+
+int myAtoi(char* s) {
+    long long res = 0;
+    bool is_negative = false;
+
+    if (!s || strlen(s) == 0) {
+        return res;
+    }
+
+    while (*s == ' ') {
+        s++;
+    }
+
+    if (*s == '-') {
+        is_negative = true;
+        s++;
+
+        if (!is_num(*s)) {
+            return res;
+        }
+    }
+
+    if (*s == '+') {
+        s++;
+
+        if (!is_num(*s)) {
+            return res;
+        }
+    }
+
+    long long temp = res;
+
+    while (is_num(*s)) {
+        temp = res * 10;
+        temp = temp + (*s - '0');
+        
+        if (temp > INT_MAX) {
+            res = is_negative ? INT_MIN : INT_MAX;
+            return res;
+        }
+        
+        res = temp;
+        s++;
+    }
+
+    if (is_negative) {
+        return res * -1;
+    }
+
+    return res;
+}
+#include <stdbool.h>
+#include <string.h>
+
+bool isMatch(char* s, char* p) {
+    int m = strlen(s);
+    int n = strlen(p);
+    
+    // Create a 2D DP table with (m+1) x (n+1) dimensions
+    bool dp[m+1][n+1];
+
+    // Initialize the DP table
+    memset(dp, false, sizeof(dp));
+    
+    // Base case: empty string matches empty pattern
+    dp[0][0] = true;
+
+    // Handle patterns like a*, a*b*, a*b*c*, etc. that can match an empty string
+    for (int j = 1; j <= n; ++j) {
+        if (p[j-1] == '*') {
+            dp[0][j] = dp[0][j-2];  // '*' can match zero occurrence of the preceding element
+        }
+    }
+
+    // Fill the DP table
+    for (int i = 1; i <= m; ++i) {
+        for (int j = 1; j <= n; ++j) {
+            // Case 1: The characters are the same, or pattern character is '.'
+            if (p[j-1] == s[i-1] || p[j-1] == '.') {
+                dp[i][j] = dp[i-1][j-1];
+            }
+            // Case 2: Pattern contains a '*' wildcard
+            else if (p[j-1] == '*') {
+                // '*' acts as zero of the preceding character
+                dp[i][j] = dp[i][j-2];
+                
+                // If preceding character in the pattern matches the current character in the string
+                // or if the preceding character in the pattern is '.', '*' can match more
+                if (p[j-2] == s[i-1] || p[j-2] == '.') {
+                    dp[i][j] = dp[i][j] || dp[i-1][j];
+                }
+            }
+        }
+    }
+
+    return dp[m][n];
+}
+char* intToRoman(int num) 
+{
+    int n[13] = {1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1};
+    char* s[13] = {"M","CM","D","CD","C","XC","L","XL","X","IX","V","IV","I"}; //To store strings like "CM" and "CD", you need an array of pointers to strings (char* s[13]).
+    
+    int i=0;
+    static char ch[20]="\0";
+    ch[0] = '\0';
+    while(num>0)
+    {
+        if(num>=n[i])
+        {
+            strcat(ch, s[i]);
+            num-=n[i];
+        }else
+        {
+            i++;
+        }
+    }
+    return ch;
+}
+#include <stdlib.h>
+
+int cmp(const void *a,const void *b) {
+    return *((int*) a) - *((int*) b);
+}
+
+int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
+    qsort(nums, numsSize, sizeof(int), cmp);
+    (*returnSize) = 0;
+    (*returnColumnSizes) = (int*) malloc(sizeof(int) * numsSize * numsSize);
+    int **ret = (int**) malloc(sizeof(int*) * numsSize * numsSize);
+    for (int i = 0; i < numsSize - 2; i++) {
+        if (i == 0 || nums[i] != nums[i-1]) {
+            int l = i + 1;
+            int r = numsSize - 1;
+            while (l < r) {
+                if (nums[i] + nums[l] + nums[r] < 0) {
+                    l++;
+                } else if (nums[i] + nums[l] + nums[r] > 0) {
+                    r--;
+                } else {
+                    ret[(*returnSize)] = (int*) malloc(sizeof(int) * 3);
+                    (*returnColumnSizes)[(*returnSize)] = 3;
+                    ret[(*returnSize)][0] = nums[i];
+                    ret[(*returnSize)][1] = nums[l];
+                    ret[(*returnSize)][2] = nums[r];
+                    (*returnSize)++;
+                    l++;
+                    while (l < r && nums[l] == nums[l-1])
+                        l++;
+                }
+            }
+        }
+    }
+    return ret;
+}
+int compare(const void* a, const void* b) {
+    return (*(int*)a - *(int*)b);
+}
+
+int threeSumClosest(int* nums, int numsSize, int target) {
+    qsort(nums, numsSize, sizeof(int), compare);
+    int closest = nums[0] + nums[1] + nums[2]; 
+
+    for (int i = 0; i < numsSize - 2; i++) {
+        int left = i + 1;
+        int right = numsSize - 1;
+
+        while (left < right) {
+            int sum = nums[i] + nums[left] + nums[right];
+            if (abs(target - sum) < abs(target - closest)) {
+                closest = sum; 
+            }
+
+            if (sum < target) {
+                left++;
+            } else if (sum > target) {
+                right--;
+            } else {
+                return sum; 
+            }
+        }
+    }
+
+    return closest;
+}
+char** letterCombinations(char* digits, int* returnSize) {
+    int len  = strlen(digits);
+    if ( !digits || !len ) {
+        *returnSize = 0;
+        return NULL;
+    }
+    char* array[9] = {"", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+    int size = 1, cnt = 0, cur_size = 0, rest_size = 0;
+    for (int i = 0; i < len; i++) {
+        size *= strlen(array[digits[i] - '1']);
+    }
+    *returnSize = rest_size = size;
+    char** ret = (char**) malloc(sizeof(char*) * (*returnSize));
+    for (int i = 0; i < size; i++) {
+        ret[i] = (char*) malloc (sizeof(char) * (len+1));
+    }
+    for (int i = 0; i < len+1; i++) {
+        if (i < len) {
+            cur_size = strlen(array[digits[i] - '1']);
+            rest_size /= cur_size;
+        }
+        for (int j = 0; j < size; j++) {
+            if (i == len) {
+                ret[j][cnt] = '\0'; 
+            } else {
+                // every character need rest_size times -> j/rest_size%cur_size
+                ret[j][cnt] = array[digits[i] - '1'][j/rest_size%cur_size];
+            }
+        } 
+        cnt++;
+    }
+    return ret;
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+ /**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+struct DynArray {
+  int** array;
+  int size;
+  int capacity;
+} dArray;
+int compare(const void *a, const void *b) {
+    return (*(int *)a - *(int *)b);
+}
+
+// Function to check if the sum of three elements is zero
+int isSumTarget(int a, int b, int c, int d, int target) {
+    return (a + b + c +d == target);
+}
+void array_alloc(struct DynArray* dynArray){
+    // if (dynArray->capacity==0){
+    //     dynArray->array=(int**)malloc(10*sizeof(int*));
+    //     dynArray->capacity=10;
+    // }
+    if (dynArray->size==dynArray->capacity){
+        int** palceholder=(int**)realloc((void*)dynArray->array,(dynArray->capacity*2)*sizeof(int*));
+        dynArray->array=palceholder;
+        dynArray->capacity*=2;
+    }
+    dynArray->array[dynArray->size]=(int*)malloc(4*sizeof(int));
+
+}
+
+void finalize_array(struct DynArray* dynArray){
+    int** palceholder=(int**)realloc((void*)dynArray->array,dynArray->size*sizeof(int*));
+    dynArray->array=palceholder;
+}
+
+int** fourSum(int* nums, int numsSize, int target, int* returnSize, int** returnColumnSizes) {
+    qsort(nums, numsSize, sizeof(int), compare);
+    dArray.array=(int**)malloc(4*sizeof(int*));
+    dArray.size=0;
+    dArray.capacity=4;
+    for (int i=0; i<numsSize-3; i++){
+        if (i > 0 && nums[i] == nums[i - 1]) {
+            continue; // Skip duplicate elements
+        }
+        for (int j=i+1;j<numsSize-2;j++){
+            if (nums[j] == nums[j -1 ]&&j>i+1) {
+            continue; // Skip duplicate elements
+            }
+
+            int left = j + 1;
+            int right = numsSize - 1;
+
+            while (left < right) {
+                long int agg = (long int)target-nums[i]-nums[j] - nums[left] - nums[right];
+                // fprint(sum);
+                // array_alloc(&dArray);
+                // dArray.array[dArray.size][0]=sum;
+                // dArray.array[dArray.size][1]=sum;
+                // dArray.array[dArray.size][2]=sum;
+                // dArray.array[dArray.size][3]=sum;
+                // dArray.size++;
+                if (agg>0) {
+                    left++;
+                } else if (agg<0) {
+                    right--;
+                } else {
+                    // Found a triplet with sum zero
+                    array_alloc(&dArray);
+                    dArray.array[dArray.size][0]=nums[i];
+                    dArray.array[dArray.size][1]=nums[j];
+                    dArray.array[dArray.size][2]=nums[left];
+                    dArray.array[dArray.size][3]=nums[right];
+                    dArray.size++;
+
+                    // Skip duplicate elements
+                    while (left < right && nums[left] == nums[left + 1]) {
+                        left++;
+                    }
+                    while (left < right && nums[right] == nums[right - 1]) {
+                        right--;
+                    }
+
+                    left++;
+                    right--;
+                    // break;
+                }
+            }
+        }
+    }
+
+                        
+    finalize_array(&dArray);
+    *returnSize=dArray.size;
+    int* columnArray=(int*)malloc(dArray.size*sizeof(int));
+    for (int i=0;i<dArray.size;i++)columnArray[i]=4;
+    *returnColumnSizes=columnArray;
+    // for(int i=0; i<dArray.size; i++) returnColumnSizes[i]=
+    return dArray.array;
+    // return &array;
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+struct ListNode* removeNthFromEnd(struct ListNode* head, int n) {
+    if(head==NULL || (head->next==NULL)){
+        return NULL;
+    }
+    int i=0,a;
+    struct ListNode *temp,*d;
+    temp=head;
+    while(temp!=NULL){
+        i++;
+        temp=temp->next;
+    }
+    if(n==i)
+    return head->next;
+    temp=head;
+    a=i-n-1;
+    while(a!=0){
+        temp=temp->next;
+        a--;
+    }
+    d=temp->next;
+    temp->next=temp->next->next;
+    free(d);
+    return head;
+}
+void generate(char **result, char * temp, int n, int left, int right, int * count, int idx)
+{
+    if(left == 0 && right == 0)
+    {
+        result[*count] = (char *)calloc(2*n + 1, sizeof(char));
+        sprintf(result[(*count)++], "%s", temp); 
+        return;
+    }
+    if(left > 0)
+    {
+        temp[idx] = '(';
+        generate(result, temp, n, left - 1, right + 1, count, idx + 1);
+    }
+    if(right > 0)
+    {
+        temp[idx] = ')';
+        generate(result, temp, n, left, right - 1, count, idx + 1);
+    }
+}
+
+char ** generateParenthesis(int n, int* returnSize){
+    char ** result = (char **)malloc(2000*sizeof(char *));
+    char * temp = (char *)calloc(2*n + 1, sizeof(char));
+    int len = 0;
+    generate(result, temp, n, n, 0, &len, 0);
+    *returnSize = len;
+    return result;
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+ struct ListNode* mergeTwoLists(struct ListNode* list1, struct ListNode* list2) {
+    struct ListNode* new_head=NULL;
+    struct ListNode* tail=NULL;
+
+    if (list1 == NULL){
+        return list2;
+    }
+    if(list2 == NULL){
+        return list1;
+    }
+
+    while(list1 != NULL && list2 != NULL){
+        if(list1->val < list2->val){
+            //add_with_tail(&new_head,&tail,list1->val);
+            if (new_head == NULL){
+                new_head = list1;
+                tail = new_head;
+            }else{
+                tail->next = list1;
+                tail = list1;
+            }
+            list1 = list1->next;
+        }else{
+            //add_with_tail(&new_head,&tail,list2->val);
+            if (new_head == NULL){
+                new_head = list2;
+                tail = new_head;
+            }else{
+                tail->next = list2;
+                tail = list2;
+            }
+            list2 = list2->next;
+        }
+    }
+    
+    if(list1 != NULL){
+        tail->next=list1;
+    }
+    if(list2 != NULL){
+        tail->next=list2;
+    }
+    
+    return new_head;
+}
+
+
+struct ListNode* mergeKLists(struct ListNode** lists, int listsSize) {
+    if (listsSize <= 0){
+        return NULL;
+    }
+    struct ListNode *head = lists[0];
+    struct ListNode *temp_list_head = *lists;
+
+    for(int i = 1; i < listsSize;i++){
+        head = mergeTwoLists(head,lists[i]);
+    }
+    return head;
+}
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     struct ListNode *next;
+ * };
+ */
+
+struct ListNode* reverseKGroup(struct ListNode* head, int k) {
+    // Base case: if the current segment has less than k nodes, return head
+    struct ListNode* current = head;
+    int count = 0;
+    while (count < k && current) {
+        current = current->next;
+        count++;
+    }
+    if (count < k) {
+        return head;
+    }
+    
+    // Reverse the current segment
+    struct ListNode* prev = NULL;
+    struct ListNode* next_node = NULL;
+    current = head;
+    for (int i = 0; i < k; i++) {
+        next_node = current->next;
+        current->next = prev;
+        prev = current;
+        current = next_node;
+    }
+    
+    // Recursively reverse the next segment
+    head->next = reverseKGroup(current, k);
+    
+    return prev;
+}
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* findSubstring(char* s, char** words, int wordsSize, int* returnSize) {
+    int nwords = 0, trieLen = 1, wordLen = strlen(words[0]), sLen = strlen(s);
+    int counts[wordsSize + 1], countMap[wordLen * wordsSize + 1], trie[wordLen * wordsSize][26];
+    memset(counts, 0, sizeof counts);
+    memset(countMap, 0, sizeof countMap);
+    memset(trie, 0, sizeof trie);
+    for (int i = 0; i < wordsSize; i++) {
+        int node = 0;
+        for (int j = 0; j < wordLen; j++) {
+            char next = words[i][j] - 'a';
+            if (trie[node][next] == 0) trie[node][next] = trieLen++;
+            node = trie[node][next];
+        }
+        if (countMap[node] == 0) countMap[node] = ++nwords;
+        counts[countMap[node]]++;
+    }
+    int* res = (int*) malloc(sLen * sizeof(int));
+    int resLen = 0;
+    int matches[sLen / wordLen + 1], windowCounts[nwords + 1];
+    for (int i = 0; i < wordLen; i++) {
+        if (i + wordLen * wordsSize > sLen) continue;
+        memset(windowCounts, 0, sizeof windowCounts);
+        int hits = 0, misses = 0;
+        for (int j = i, k = 0, l = 0; j + wordLen <= sLen; j += wordLen, k++) {
+            int node = 0;
+            for (int m = j; m < j + wordLen; m++) {
+                node = trie[node][s[m] - 'a'];
+                if (node == 0) { misses++; matches[k] = -1; break; }
+            }
+            if (node != 0) {
+                int countIdx = countMap[node];
+                matches[k] = countIdx;
+                windowCounts[countIdx]++;
+                if (windowCounts[countIdx] == counts[countIdx]) hits++;
+                else while (windowCounts[countIdx] > counts[countIdx]) {
+                    int leftIdx = matches[l++];
+                    if (leftIdx == -1) misses--;
+                    else {
+                        if (windowCounts[leftIdx] == counts[leftIdx]) hits--;
+                        windowCounts[leftIdx]--;
+                    }
+                }
+            }
+            while (l <= k && matches[l] == -1) { l++; misses--; }
+            if (hits == nwords && misses == 0) res[resLen++] = i + l * wordLen;
+        }
+    }
+    *returnSize = resLen;
+    return res;
+}
+void nextPermutation(int* nums, int numsSize) {
+
+int i, j, temp, pivot = -1;
+
+for (i = numsSize-2; i >= 0; i-- ) {
+    if (nums[i] < nums[i+1]) {
+        pivot = i;
+        break;
+    }
+}
+if (pivot == -1) {
+    i = 0;
+    j = numsSize - 1;
+    while (i < j) {
+        temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+        i++;
+        j--;
+    }
+    return;
+}
+
+for (i = numsSize-1; i > pivot; i--) {
+    if (nums[i] > nums[pivot]) {
+        temp = nums[i];
+        nums[i] = nums[pivot];
+        nums[pivot] = temp;
+        break;
+    }
+}
+i = pivot + 1;
+j = numsSize - 1;
+//printf("%d %d", i, j);
+while (i < j) {
+    temp = nums[i];
+    nums[i] = nums[j];
+    nums[j] = temp;
+    i++;
+    j--;
+}
+
+}
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+int longestValidParentheses(char* s) {
+    int max_length = 0;
+    int* stack = (int*)malloc(sizeof(int) * (strlen(s) + 1));
+    int top = -1;
+
+    stack[++top] = -1;
+
+    for (int i = 0; s[i] != '\0'; i++) {
+        if (s[i] == '(') {
+            stack[++top] = i;
+        } else {
+            top--;
+            if (top == -1) {
+                stack[++top] = i; 
+            } else {
+                max_length = MAX(max_length, i - stack[top]);
+            }
+        }
+    }
+
+    free(stack);
+    return max_length;
+}
+int helper(int* arr,int left,int right,int target){
+    if(left <= right){
+        int mid = (right - left)/2 + left;
+        if(arr[mid]==target)
+            return mid;
+        else if((arr[mid] < target) && (arr[right] < target) && (arr[mid] <= arr[right]))
+            return helper(arr,left,mid-1,target);
+        else if(arr[mid] < target)
+            return helper(arr,mid+1,right,target);
+        else if((arr[mid] > target) && (arr[left] > target) && (arr[mid] >= arr[left]))
+            return helper(arr,mid+1,right,target);
+        else
+            return helper(arr,left,mid-1,target);
+    }
+    return -1;
+}
+
+int search(int* nums, int numsSize, int target) {
+    return helper(nums,0,numsSize-1,target);
+}
+int* searchRange(int* nums, int size, int target, int* returnSize) {
+    int low = 0;
+    int high = size - 1;
+    int first = -1;
+    int last = -1;  
+    if (size > 0 && nums[low + (high - low) / 2] > target) {
+        high = low + (high - low) / 2 - 1; 
+    }
+
+    int found = 0;
+    int kodi = 0;
+    for (int i = low; i <= high; i++) {
+        if (nums[i] == target && found == 0) {
+            first = i;
+            found = 1;
+        }
+        if (nums[high - i + low] == target && kodi == 0) {
+            last = high - i + low;
+            kodi = 1;
+        }
+        if (found == 1 && kodi == 1) {
+            break;
+        }
+    }
+
+    int* result = (int*)malloc(2 * sizeof(int));
+    result[0] = first;
+    result[1] = last;
+    *returnSize = 2; 
+    return result;
+}
+int brutal_solve(char** board, int pos){
+    int i, j, ris = 0, k, flag = 1;
+    while(pos <81 && board[pos/9][pos%9]!='.')  pos++;
+    if(pos>=81){
+        ris = 1;
+        return ris;
+    }
+
+    for(k=1; k<=9; k++){
+        flag = 1;
+        for(i=0; i<9;i++){
+            if(board[pos/9][i]==(k+'0')) flag = 0;
+            if(board[i][pos%9]==(k+'0')) flag = 0;
+        }
+        for(i=(pos/9)-((pos/9)%3); i<(pos/9)-((pos/9)%3)+3; i++)
+            for(j=(pos%9)-((pos%9)%3); j<(pos%9)-((pos%9)%3)+3; j++)
+                if(board[i][j]==k +'0') flag = 0;
+        if(flag){
+            board[pos/9][pos%9] = k+'0';
+            ris = brutal_solve(board, pos +1);
+            if(ris==0)
+                board[pos/9][pos%9] = '.';
+            else
+                return ris;
+
+        }
+    }
+    return ris;
+}
+
+
+void updateExclusion(int exclusion[9][9][9], int i, int j, int value){
+    int r, c, k, m, n;
+    for(k=0;k<9;k++){
+        exclusion[i][j][k]=0;
+        exclusion[k][j][value]=0;
+        exclusion[i][k][value]=0;
+    }
+    r = (i/3)*3;
+    c = (j/3)*3;
+    for(m=0; m<3; m++, r++)
+        for(n=0; n<3; n++)
+            exclusion[r][c+n][value]=0;
+    return;
+}
+
+void solveSudoku(char** board, int boardSize, int* boardColSize){
+
+    int exclusion[9][9][9], flag=1;
+    int i, j, k, r, c, value, iter1, iter2, squareR, squareC, squareRlim, squareClim;
+    int rToAdd, cToAdd;
+    for(i=0;i<9;i++)
+        for(j=0;j<9;j++)
+            for(k=0;k<9;k++)
+                exclusion[i][j][k]=1;
+   
+        for(i=0;i<9;i++)
+            for(j=0;j<9;j++)
+                if(board[i][j]!='.'){
+                    value = board[i][j] - 1 - '0';
+                    updateExclusion(exclusion, i, j, value);
+                }
+      /*this flag will be used for checking if a new value has been inserted in the Sudoku scheme*/
+    while(flag){
+        flag = 0;
+        for(iter1=0;iter1<9;iter1++){
+            for(squareR=0;squareR<3;squareR++){
+                for(squareC=0;squareC<3;squareC++){
+                    value =0;
+                    squareRlim = squareR*3;
+                    squareClim = squareC*3;
+                    for(r=squareRlim;r<squareRlim+3&&flag==0;r++){
+                        for(c=squareClim;c<squareClim+3&&flag==0;c++){
+                            if(exclusion[r][c][iter1]!=0){
+                                rToAdd=r;
+                                cToAdd=c;
+                                
+                            }
+                            value += exclusion[r][c][iter1];
+                        }
+                    }
+                    if(value == 1){
+                        board[rToAdd][cToAdd] = iter1+1+'0';
+                        flag++;
+                        updateExclusion(exclusion, rToAdd, cToAdd, iter1);
+                    }
+                }
+            }
+            for(r=0;r<9;r++){
+                value = 0;
+                for(c=0;c<9;c++){
+                    if(exclusion[r][c][iter1]!=0)
+                        cToAdd=c;
+                    value += exclusion[r][c][iter1];
+                }
+                if(value == 1){
+                    board[r][cToAdd] = iter1+1 +'0';
+                    flag++;
+                    updateExclusion(exclusion, r, cToAdd, iter1);
+                }
+            }
+
+            for(c=0;c<9;c++){
+                value = 0;
+                for(r=0;r<9;r++){
+                    if(exclusion[r][c][iter1]!=0)
+                        rToAdd=r;
+                    value += exclusion[r][c][iter1];
+                }
+                if(value == 1){
+                    board[rToAdd][c] = iter1+1 + '0';
+                    flag++;
+                    updateExclusion(exclusion, rToAdd, c, iter1);
+                }
+            }
+        }
+    }
+    brutal_solve(board, 0);
+    return;
+    
+    
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int sum_arr(int *arr, int size)
+{
+    int res = 0;
+    for (int i = 0; i < size; i++) {
+        res += arr[i];
+    }
+    return res;
+}
+
+void backtrack(int *candidates,
+               int candidatesSize,
+               int target,
+               int **res,
+               int *tmp,
+               int level,
+               int last,
+               int *returnSize,
+               int **returnColumnSizes)
+{
+    int sum = sum_arr(tmp, level);
+    if (sum == target) {
+        res[*returnSize] = malloc(level * sizeof(int));
+        memcpy(res[*returnSize], tmp, level * sizeof(int));
+        (*returnColumnSizes)[*returnSize] = level;
+        (*returnSize)++;
+        return;
+    }
+
+    if (sum > target) {
+        return;
+    }
+
+    for (int i = last; i < candidatesSize; i++) {
+        tmp[level] = candidates[i];
+        backtrack(candidates, candidatesSize, target, res, tmp, level + 1, i,
+                  returnSize, returnColumnSizes);
+    }
+}
+
+int **combinationSum(int *candidates,
+                     int candidatesSize,
+                     int target,
+                     int *returnSize,
+                     int **returnColumnSizes)
+{
+    int **res = malloc(200 * sizeof(int *));
+    *returnColumnSizes = malloc(200 * sizeof(int));
+    *returnSize = 0;
+
+    int *tmp = calloc(20, sizeof(int));
+
+    backtrack(candidates, candidatesSize, target, res, tmp, 0, 0, returnSize,
+              returnColumnSizes);
+
+    // realloc
+    res = realloc(res, *returnSize * sizeof(int *));
+    *returnColumnSizes = realloc(*returnColumnSizes, *returnSize * sizeof(int));
+
+    free(tmp);
+    return res;
+}
+int cmp(const void *a, const void *b) { return *(int *)a - *(int *)b; }
+
+void backtrack(int *nums, int numsSize, int *curr, int curidx, int remainingSum, int **res,
+               int *returnSize, int **returnColumnSize, int idx) {
+    if (remainingSum < 0) {
+        return;
+    } else if (remainingSum == 0) {
+        res[(*returnSize)] = (int *)malloc(curidx * sizeof(int));
+        for (int i = 0; i < curidx; i++) {
+            res[(*returnSize)][i] = curr[i];
+        }
+        (*returnColumnSize)[(*returnSize)] = curidx;
+        (*returnSize)++;
+        return;
+    }
+    for (int i = idx; i < numsSize; i++) {
+        if (i > idx && nums[i] == nums[i - 1]) continue;
+        curr[curidx++] = nums[i];
+        backtrack(nums, numsSize, curr, curidx, remainingSum - nums[i], res, returnSize,
+                  returnColumnSize, i + 1);
+        curidx--;
+    }
+}
+
+int **combinationSum2(int *candidates, int candidatesSize, int target, int *returnSize,
+                      int **returnColumnSizes) {
+    *returnSize = 0;
+    int **res = (int **)malloc(1024 * sizeof(int));
+    *returnColumnSizes = (int *)malloc(1024 * sizeof(int));
+    qsort(candidates, candidatesSize, sizeof(int), cmp);
+    int *curr = (int *)malloc(128 * sizeof(int));
+    backtrack(candidates, candidatesSize, curr, 0, target, res, returnSize, returnColumnSizes, 0);
+    return res;
+}
+int firstMissingPositive(int* nums, int numsSize) {
+    int tmp, tmp2;
+
+    for(int i = 0; i < numsSize; i++) {
+        tmp = nums[i];
+        while(tmp > 0 && tmp <= numsSize && nums[tmp-1] != tmp) {
+            tmp2 = nums[tmp-1];
+            nums[tmp-1] = tmp;
+            tmp = tmp2;
+        }
+    }
+    for(int i = 0; i < numsSize; i++) {
+        if(nums[i] != (i+1)) return i+1;
+    }
+    
+    return numsSize+1;
+}
+int trap(int* arr, int n) {
+    int left =0 ,right = n-1;
+    int left_max=arr[left],right_max = arr[right],water=0;
+    while(left <= right){
+        if(arr[left]<=arr[right]){
+            left_max  = (left_max>arr[left])?left_max:arr[left];
+            int t = left_max - arr[left];
+            water += t;
+            left++;
+        }
+        else  if(arr[left]>arr[right]){
+            right_max  = (right_max>arr[right]) ? right_max : arr[right];
+            int t = right_max - arr[right];
+            water += t;
+            right--;
+        }
+    }
+    return water;
+}
+char * multiply(char * num1, char * num2){
+    if(num1[0]=='0' || num2[0]=='0') return "0";
+    int n,m;
+    n = strlen(num1);
+    m = strlen(num2);
+    char* ans = (char*)calloc(n+m+1,sizeof(char));
+    for(int i=0 ; i<n ; i++){
+        for(int j=0 ; j<m ; j++){
+            int k = i+j+1;
+            int mul = (num1[i]-'0') * (num2[j]-'0');
+            while(mul){
+                mul += ans[k];
+                ans[k] = (mul)%10;
+                mul = mul/10;
+                k--;
+            }
+        }
+    }
+    for(int i=0 ; i<m+n ; i++){
+        ans[i] += '0';
+    }
+    if(ans[0]=='0') return ans+1;
+    return ans;
+}
+bool isMatch(char* s, char* p) {
+   if(!*s && !*p)return true;
+   if(!*s && *p){
+    while(*p){
+        if(*p != '*')return false;
+        p++;
+    }
+    return true;
+   }
+   if(!*p)return false;
+
+    while(*p && *s && (*p == *s || *p == '?')){
+        p++;
+        s++;
+    }
+
+    if(!*s && !*p)return true;
+    if(!*s && *p){
+        while(*p){
+            if(*p != '*')return false;
+            p++;
+        }
+        return true;
+    }
+   if(!*p || (*p != *s && *p != '*'))return false;
+
+   int counter = 0;
+   int qst_counter = 0;
+
+    while(*p && *s){
+        if(*p == *s){
+            p++;
+            s++;
+            counter++;
+            if(!*p && *s && counter == 1){
+                p--;
+                counter--;
+            }
+        }else if(*p == '*'){
+            //Anything goes
+            p++;
+            if(!*p){
+                return true;
+            }            
+            qst_counter = 0;
+            counter = 0;
+        }else if(*p == '?'){
+            //only one character is removed
+            p++;
+            s++;
+            qst_counter++;
+            counter++;
+            if(!*p && *s && counter == qst_counter){
+                return true;
+            }
+        }else{
+            p -= counter;
+            s -= counter - 1;
+            qst_counter = 0;
+            counter = 0;
+        }
+        if(!*p && *s && counter > 0){
+            p -= counter;
+            s -= counter - 1;
+            qst_counter = 0;
+            counter = 0;
+        }
+    }
+
+    if(!*s && !*p && counter)return true;
+    if(!*s && *p){
+        while(*p){
+            if(*p != '*')return false;
+            p++;
+        }
+        return true;
+    }
+    return false;
+}
+int jump(int* nums, int numsSize) {
+    int jumps[numsSize];
+    int countJump = 0;
+
+    for(int i = 0; i < numsSize; i++){
+        jumps[i] = i + nums[i];
+    }
+
+    int k = numsSize - 1;
+    while(k != 0){
+        for(int i = 0; i < k; i++){
+            if(jumps[i] >= k){
+                k = i;
+                countJump++;
+            }
+        }
+    }
+
+    return countJump;
+
+}
+int factorial(int num)
+{
+    if(num==1){return 1;}
+    else return num * factorial(num - 1);
+}
+
+void perm(int **arr,int *ind,int numsSize,int *nums,int *visited,int *res,int size,int k)
+{
+    if(k==numsSize){
+        if(*ind==size){return;}
+        int *temp = malloc(sizeof(int) * numsSize);
+        memcpy(temp,res,sizeof(int) * numsSize);
+        arr[(*ind)++] = temp;
+    }
+    else{
+        for(int i=0;i<numsSize;i++){
+            if(visited[i] == 0){
+                res[k] = nums[i];
+                visited[i] = 1;
+                perm(arr,ind,numsSize,nums,visited,res,size,k+1);
+                visited[i] = 0;
+            }
+        }
+    }
+}
+
+
+int** permute(int* nums, int numsSize, int* returnSize, int** returnColumnSizes){
+    int size = factorial(numsSize);
+	int ind = 0;
+	
+    int **arr = malloc(sizeof(int*) * size);
+    int *visited = (int*)calloc(numsSize,sizeof(int));
+    int *res = (int*)calloc(numsSize,sizeof(int));
+	
+    perm(arr,&ind,numsSize,nums,visited,res,size,0);
+    
+    int *ret = malloc(sizeof(int) * size);
+    for(int i=0;i<size;i++){ret[i]=numsSize;}
+    
+    free(visited);
+    free(res);
+    
+	*returnSize = size;
+    *returnColumnSizes = ret;
+    return arr;
+}
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+struct node{
+    int* val;
+    struct node* next;
+};
+typedef struct _stack{
+    struct node* top;
+    int size;
+}Stack;
+void push(Stack* stack,int* permutation,int permutationSize){
+    //create a copy of permutation
+    int* copy=malloc(permutationSize*sizeof(int));
+    for(int i=0;i<permutationSize;i++){
+        copy[i]=permutation[i];
+    }
+    //push copy to stack
+    struct node* newNode=malloc(sizeof(struct node));
+    newNode->val=copy;
+    newNode->next=stack->top;
+    stack->top=newNode;
+    stack->size++;
+}
+int* pop(Stack* stack){
+    int* permutation=stack->top->val;
+    stack->top=stack->top->next;
+    stack->size--;
+    return permutation;
+}
+void backtrack(Stack* stack,int* permutation,int permutationSize,int* nums,int numsSize,int* visited){
+    if(permutationSize==numsSize){
+        push(stack,permutation,permutationSize);
+        return;
+    }
+    for(int i=0;i<numsSize;i++){
+        //Before making a recursive call, we check if the current element is a duplicate by comparing it with the previous element (if any).
+        //If the current element is a duplicate and the previous element is not visited, we skip it to avoid generating duplicate permutations.
+        if(visited[i] || (i>0 && nums[i]==nums[i-1] && visited[i-1]==0)) continue;
+        permutation[permutationSize]=nums[i];
+        visited[i]=1;
+        backtrack(stack,permutation,permutationSize+1,nums,numsSize,visited);
+        visited[i]=0;
+    }
+}
+void quicksort(int* nums,int startIndex,int endIndex){
+    if(startIndex>=endIndex){
+        return;
+    }
+    //partition
+    //push all elements smaller than end element to before pivot
+    int pivot=startIndex;
+    int temp;
+    for(int i=startIndex;i<=endIndex-1;i++){
+        if(nums[i]<=nums[endIndex]){
+            //swap with pivot
+            temp=nums[i];
+            nums[i]=nums[pivot];
+            nums[pivot]=temp;
+            //move pivot 1 step right
+            pivot++;
+        }
+    }
+    //swap end and pivot
+    temp=nums[pivot];
+    nums[pivot]=nums[endIndex];
+    nums[endIndex]=temp;
+    //sort left and right partitions
+    quicksort(nums,startIndex,pivot-1);
+    quicksort(nums,pivot+1,endIndex);
+}
+int** permuteUnique(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {
+    Stack stack;
+    stack.top=NULL;stack.size=0;
+    //create visited array to store visited status of each index in nums
+    //visited[0]=1 means element in index 0 of nums is visited
+    int* visited=malloc(numsSize*sizeof(int));
+    for(int i=0;i<numsSize;i++){
+        visited[i]=0;
+    }
+    //create array to store each temporary permutation
+    int* permutation=malloc(numsSize*sizeof(int));
+    //sort the nums array so that permutations with the same elements but in different order will not be added to the result
+    quicksort(nums,0,numsSize-1);
+    //recursive function to push all permutations to stack
+    backtrack(&stack,permutation,0,nums,numsSize,visited);
+    //pop all elements from stack and append to return array
+    *returnSize=stack.size;
+    int** returnArray=malloc(*returnSize*sizeof(int*));
+    *returnColumnSizes=malloc(*returnSize*sizeof(int));
+    for(int i=0;i<*returnSize;i++){
+        *(*returnColumnSizes+i)=numsSize;
+        returnArray[i]=pop(&stack);
+    }
+    return returnArray;
+}
+void rotate(int** matrix, int matrixSize, int* matrixColSize) {
+    int n= matrixSize;
+        //transpose the matrix
+        for(int i=0; i<n; i++){
+            for (int j=0; j<=i; j++){
+                // swap element
+               int temp = matrix[i][j];
+               matrix[i][j] = matrix[j][i];
+               matrix[j][i] = temp;
+            }
+        }
+
+        // swap the left column with right column
+        int left=0, right=n-1;
+        while(left < right)
+        {
+            for(int i=0; i<n; i++){
+                // swap
+                int temp = matrix[i][left];
+                matrix[i][left] = matrix[i][right];
+                matrix[i][right] = temp;
+            }
+            left++; 
+            right--;
+        }
+
+}
+struct word {
+    char sorted[256];
+    char s[256];
+    UT_hash_handle hh;
+};
+
+int comp(const void *aa, const void *bb)
+{
+    char a, b;
+    a = *(char *)aa;
+    b = *(char *)bb;
+    
+    if (a < b)
+        return -1;
+    else if (a > b)
+        return 1;
+    else
+        return 0;
+}
+
+char *sort_string(char *s)
+{
+    char *rs = malloc(strlen(s)+1);
+    assert(rs);
+    strcpy(rs, s);
+    qsort((void *)rs, strlen(rs), 1, comp);
+    return rs;
+}
+
+int word_sort(struct word *a, struct word *b) {
+    return strcmp(a->sorted,b->sorted);
+}
+
+
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+char *** groupAnagrams(char ** strs, int strsSize, int* returnSize, int** returnColumnSizes){
+    struct word *w, *tmp;
+    int i;
+    struct word *words = NULL;
+    
+    for (i = 0; i < strsSize; i++) {
+        char *sorted = sort_string(strs[i]);
+        w = (struct word *)malloc(sizeof *w);
+        strncpy(w->sorted, sorted, 256);
+        strncpy(w->s, strs[i], 256);
+        HASH_ADD_STR( words, sorted, w );
+        free(sorted);
+    }
+    
+    char ***ret = malloc(strsSize * sizeof(char *));
+    int *retcolsizes = malloc(strsSize * sizeof(int));
+    *returnColumnSizes = retcolsizes;
+    assert(*returnColumnSizes);
+    assert(ret);
+    
+    *returnSize = -1;
+    char *anagram = NULL;
+    
+    /* XXX: what we would like is something like (python):
+     *      return dic.values();
+     * I know its C, but there has to be a better way.
+     */
+    HASH_SORT(words, word_sort);
+    HASH_ITER(hh, words, w, tmp) {
+        if (anagram != NULL && strcmp(w->sorted, anagram) == 0) {
+            ret[*returnSize][retcolsizes[*returnSize]] = w->s; // was malloc'ed
+            retcolsizes[*returnSize] += 1;
+        } else {
+            *returnSize += 1;
+            ret[*returnSize] = malloc(strsSize * sizeof(char *));
+            assert(ret[*returnSize]);
+            retcolsizes[*returnSize] = 0;
+            ret[*returnSize][retcolsizes[*returnSize]] = w->s; // was malloc'ed
+            retcolsizes[*returnSize] += 1;
+            anagram = w->sorted;
+        }
+    }
+    
+    /* XXX: we are leaking a bunch of memory for the struct word's*/
+    *returnSize += 1;
+    return ret;
+}
+double a=pow(x,n) ;
+   return a;
